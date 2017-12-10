@@ -130,6 +130,11 @@ def parse_args():
         "--channel-monitor",
         help="Monitor if target access point changes the channel.",
         action='store_true')
+    parser.add_argument(
+        "-pB",
+        "--popular-beacons",
+        help="Broadcast a number of beacon frames advertising popular WLANs",
+        action='store_true')
 
     return parser.parse_args()
 
@@ -520,6 +525,8 @@ class WifiphisherEngine:
                 extensions.append(LURE10_EXTENSION)
             if args.handshake_capture:
                 extensions.append(HANDSHAKE_VALIDATE_EXTENSION)
+            if args.send_beacons:
+                extensions.append(FAMOUS_BEACONS_EXTENSION)
             self.em.set_extensions(extensions)
             self.em.init_extensions(shared_data)
             self.em.start_extensions()

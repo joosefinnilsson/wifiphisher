@@ -11,6 +11,7 @@ dir_of_data = path_to_project_root + '/data/'
 # Basic configuration
 DEV = 1
 LURE10_EXTENSION = "lure10"
+FAMOUS_BEACONS_EXTENSION = "famousbeacons"
 HANDSHAKE_VALIDATE_EXTENSION = "handshakeverify"
 DEFAULT_EXTENSIONS = ["deauth"]
 EXTENSIONS_LOADPATH = "wifiphisher.extensions."
@@ -26,6 +27,7 @@ SCENARIO_HTML_DIR = "html/"
 LOGOS_DIR = dir_of_data + "logos/"
 LOCS_DIR = dir_of_data + "locs/"
 MAC_PREFIX_FILE = dir_of_data + "wifiphisher-mac-prefixes"
+POPULAR_WLANS_FILE = dir_of_data + "wifiphisher-popular-open-wlans"
 POST_VALUE_PREFIX = "wfphshr"
 NETWORK_IP = "10.0.0.0"
 NETWORK_MASK = "255.255.255.0"
