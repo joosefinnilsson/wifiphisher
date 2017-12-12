@@ -11,7 +11,7 @@ dir_of_data = path_to_project_root + '/data/'
 # Basic configuration
 DEV = 1
 LURE10_EXTENSION = "lure10"
-FAMOUS_BEACONS_EXTENSION = "famousbeacons"
+KNOWN_BEACONS_EXTENSION = "knownbeacons"
 HANDSHAKE_VALIDATE_EXTENSION = "handshakeverify"
 DEFAULT_EXTENSIONS = ["deauth"]
 EXTENSIONS_LOADPATH = "wifiphisher.extensions."

@@ -1,9 +1,5 @@
 """
-Extension that performs a Beacon Dictionary attack.
-
-Exploits the Wi-Fi Sense feature and will result
-to automatic association by fooling the Windows
-Location Service
+Extension that sends a number of known beacons to trigger the AUTO-CONNECT flag.
 """
 
 import logging
@@ -14,9 +10,9 @@ import scapy.layers.dot11 as dot11
 logger = logging.getLogger(__name__)
 
 
-class Famousbeacons(object):
+class Knownbeacons(object):
     """
-    Sends a number of beacons to fool Windows Location Service
+    Sends a number of known beacons to trigger the AUTO-CONNECT flag.
     """
 
     def __init__(self, shared_data):
@@ -40,9 +36,9 @@ class Famousbeacons(object):
         """
         We start broadcasting the beacons on the first received packet
 
-        :param self: A Lure10 object
+        :param self: A Knownbeacons object
         :param packet: A scapy.layers.RadioTap object
-        :type self: Lure10
+        :type self: Knownbeacons
         :type packet: scapy.layers.RadioTap
         :return: A tuple containing ["*"] followed by a list of
             the crafted beacon frames
@@ -60,7 +56,7 @@ class Famousbeacons(object):
             self._packets_to_send["*"] = beacons
 
         # only run this code once
-        if self.first_run and self.data.args.send_beacons:
+        if self.first_run and self.data.args.known_beacons:
             # locate the lure10 file
             area_file = constants.POPULAR_WLANS_FILE
 
@@ -68,6 +64,8 @@ class Famousbeacons(object):
                 for line in _file:
                     # remove any white space and store the ESSID (first word)
                     line.strip()
+                    if line.startswith("#"):
+                        continue
                     essid = line.split(" ", 1)[0]
 
                     # craft the required packet parts
@@ -87,8 +85,6 @@ class Famousbeacons(object):
                     complete_frame = (
                         frame_part_0 / frame_part_1 / frame_part_2 /
                         frame_part_3 / frame_part_4 / frame_part_5)
-                    logger.debug("Add lure10-beacon frame with BSSID %s",
-                                 bssid)
                     # add the frame to the list
                     beacons.append(complete_frame)
 
@@ -99,25 +95,25 @@ class Famousbeacons(object):
 
     def send_output(self):
         """
-        Sending Lure10 notification
+        Sending Knownbeacons notification
 
-        :param self: A Lure10 object
-        :type self: Lure10
+        :param self: A Knownbeacons object
+        :type self: Knownbeacons
         :return: list of notification messages
         :rtype: list
         .. note: Only sends notification for the first time to reduce
             clutters
         """
 
-        return (not self.first_run and self.data.args.send_beacons
-                and ["Lure10 - Spoofing location services"] or [])
+        return (not self.first_run and self.data.args.known_beacons
+                and ["Sending known beacons..."] or [])
 
     def send_channels(self):
         """
         Send all interested channels
 
-        :param self: A Lure10 object
-        :type self: Lure10
+        :param self: A Knownbeacons object
+        :type self: Knownbeacons
         :return: A list with all the channels interested
         :rtype: list
         .. note: Only the channel of the target AP is sent here
