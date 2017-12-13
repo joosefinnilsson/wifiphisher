@@ -40,8 +40,8 @@ def parse_args():
     parser = argparse.ArgumentParser()
 
     parser.add_argument(
-        "-jI",
-        "--jamminginterface",
+        "-eI",
+        "--extensionsinterface",
         help=("Manually choose an interface that supports monitor mode for " +
               "deauthenticating the victims. " + "Example: -jI wlan1"))
     parser.add_argument(
@@ -56,10 +56,14 @@ def parse_args():
         help=("Choose an interface that is connected on the Internet" +
               "Example: -iI ppp0"))
     parser.add_argument(
-        "-nJ",
-        "--nojamming",
-        help=("Skip the deauthentication phase. When this option is used, " +
-              "only one wireless interface is required"),
+        "-nE",
+        "--noextensions",
+        help=("Do not load any extensions."),
+        action='store_true')
+    parser.add_argument(
+        "-nD",
+        "--nodeauth",
+        help=("Skip the deauthentication phase."),
         action='store_true')
     parser.add_argument(
         "-e",
@@ -67,6 +71,7 @@ def parse_args():
         help=("Enter the ESSID of the rogue Access Point. " +
               "This option will skip Access Point selection phase. " +
               "Example: --essid 'Free WiFi'"))
+    # TODO: Would be cool to optionally provide ESSID (i.e. -dE "foo")
     parser.add_argument(
         "-dE",
         "--deauth-essid",
@@ -112,9 +117,9 @@ def parse_args():
         "--mac-ap-interface",
         help=("Specify the MAC address of the AP interface"))
     parser.add_argument(
-        "-iDM",
-        "--mac-deauth-interface",
-        help=("Specify the MAC address of the jamming interface"))
+        "-iEM",
+        "--mac-extensions-interface",
+        help=("Specify the MAC address of the extensions interface"))
     parser.add_argument(
         "-iNM",
         "--no-mac-randomization",
@@ -126,15 +131,19 @@ def parse_args():
         "--payload-path",
         help=("Payload path for scenarios serving a payload"))
     parser.add_argument(
-        "-cM",
-        "--channel-monitor",
-        help="Monitor if target access point changes the channel.",
-        action='store_true')
-    parser.add_argument(
         "-kB",
         "--known-beacons",
         help="Broadcast a number of beacon frames advertising popular WLANs",
         action='store_true')
+    parser.add_argument("-cM", "--channel-monitor",
+                        help="Monitor if target access point changes the channel.",
+                        action="store_true")
+    parser.add_argument("-wE", "--wpspbc-exploit",
+                        help="Monitor if the button on a WPS-PBC Registrar is pressed.",
+                        action="store_true")
+    parser.add_argument("-wAI", "--wpspbc-assoc-interface",
+                        help="The WLAN interface used for associating to the WPS AccessPoint.",
+                        )
 
     return parser.parse_args()
 
@@ -293,11 +302,17 @@ class WifiphisherEngine:
                             internet_interface)
                 logger.info("Selecting %s interface for accessing internet",
                             args.internetinterface)
-            if self.opmode.advanced_enabled():
-                if args.jamminginterface and args.apinterface:
+            # check if the interface for WPS is valid
+            if self.opmode.assoc_enabled():
+                if self.network_manager.is_interface_valid(
+                        args.wpspbc_assoc_interface, "WPS"):
+                    logger.info("Selecting %s interface for WPS association",
+                                args.wpspbc_assoc_interface)
+            if self.opmode.extensions_enabled():
+                if args.extensionsinterface and args.apinterface:
                     if self.network_manager.is_interface_valid(
-                            args.jamminginterface, "monitor"):
-                        mon_iface = args.jamminginterface
+                            args.extensionsinterface, "monitor"):
+                        mon_iface = args.extensionsinterface
                         self.network_manager.unblock_interface(mon_iface)
                     if self.network_manager.is_interface_valid(
                             args.apinterface, "AP"):
@@ -307,7 +322,7 @@ class WifiphisherEngine:
                     )
                 # display selected interfaces to the user
                 logger.info(
-                    "Selecting {} for deauthentication and {} for rouge access point"
+                    "Selecting {} for deauthentication and {} for the rogue Access Point"
                     .format(mon_iface, ap_iface))
                 print(
                     "[{0}+{1}] Selecting {0}{2}{1} interface for the deauthentication "
@@ -321,13 +336,13 @@ class WifiphisherEngine:
                             ap_iface, args.mac_ap_interface)
                     else:
                         self.network_manager.set_interface_mac_random(ap_iface)
-                    if args.mac_deauth_interface:
+                    if args.mac_extensions_interface:
                         self.network_manager.set_interface_mac(
                             mon_iface, args.mac_deauth_interface)
                     else:
                         self.network_manager.set_interface_mac_random(
                             mon_iface)
-            if not self.opmode.deauth_enabled():
+            if not self.opmode.extensions_enabled():
                 if args.apinterface:
                     if self.network_manager.is_interface_valid(
                             args.apinterface, "AP"):
@@ -357,7 +372,7 @@ class WifiphisherEngine:
             self.network_manager.unblock_interface(ap_iface)
             self.network_manager.unblock_interface(mon_iface)
             # set monitor mode only when --essid is not given
-            if self.opmode.advanced_enabled() or args.essid is None:
+            if self.opmode.extensions_enabled() or args.essid is None:
                 self.network_manager.set_interface_mode(mon_iface, "monitor")
         except (interfaces.InvalidInterfaceError,
                 interfaces.InterfaceCantBeFoundError,
@@ -379,7 +394,7 @@ class WifiphisherEngine:
             print "[{0}+{1}] Changing {2} MAC addr (BSSID) to {3}".format(
                 G, W, ap_iface, rogue_ap_mac)
 
-            if self.opmode.advanced_enabled():
+            if self.opmode.extensions_enabled():
                 mon_mac = self.network_manager.get_interface_mac(mon_iface)
                 logger.info("Changing {} MAC address to {}".format(
                     mon_iface, mon_mac))
@@ -486,13 +501,17 @@ class WifiphisherEngine:
         })
 
         # We want to set this now for hostapd. Maybe the interface was in "monitor"
-        # mode for network discovery before (e.g. when --nojamming is enabled).
+        # mode for network discovery before (e.g. when --noextensions is enabled).
         self.network_manager.set_interface_mode(ap_iface, "managed")
         # Start AP
         self.network_manager.up_interface(ap_iface)
         self.access_point.set_interface(ap_iface)
         self.access_point.set_channel(channel)
         self.access_point.set_essid(essid)
+        if args.wpspbc_assoc_interface:
+            wps_mac = self.network_manager.get_interface_mac(
+                args.wpspbc_assoc_interface)
+            self.access_point.add_deny_macs([wps_mac])
         if args.presharedkey:
             self.access_point.set_psk(args.presharedkey)
         if self.opmode.internet_sharing_enabled():
@@ -503,9 +522,9 @@ class WifiphisherEngine:
             self.access_point.start_dhcp_dns()
         except BaseException:
             self.stop()
-        # If are on Advanced mode, start Extension Manager (EM)
+        # Start Extension Manager (EM)
         # We need to start EM before we boot the web server
-        if self.opmode.advanced_enabled():
+        if self.opmode.extensions_enabled():
             shared_data = {
                 'is_freq_hop_allowed': self.opmode.freq_hopping_enabled(),
                 'target_ap_channel': channel or "",
@@ -527,6 +546,10 @@ class WifiphisherEngine:
                 extensions.append(HANDSHAKE_VALIDATE_EXTENSION)
             if args.known_beacons:
                 extensions.append(KNOWN_BEACONS_EXTENSION)
+            if args.nodeauth:
+                extensions.remove(DEAUTH_EXTENSION)
+            if args.wpspbc_exploit:
+                extensions.append(WPSPBC)
             self.em.set_extensions(extensions)
             self.em.init_extensions(shared_data)
             self.em.start_extensions()

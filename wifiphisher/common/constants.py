@@ -10,10 +10,12 @@ dir_of_data = path_to_project_root + '/data/'
 
 # Basic configuration
 DEV = 1
+DEAUTH_EXTENSION = "deauth"
 LURE10_EXTENSION = "lure10"
 KNOWN_BEACONS_EXTENSION = "knownbeacons"
+WPSPBC = "wpspbc"
 HANDSHAKE_VALIDATE_EXTENSION = "handshakeverify"
-DEFAULT_EXTENSIONS = ["deauth"]
+DEFAULT_EXTENSIONS = [DEAUTH_EXTENSION]
 EXTENSIONS_LOADPATH = "wifiphisher.extensions."
 PORT = 8080
 SSL_PORT = 443
@@ -55,11 +57,11 @@ NEW_YEAR = "01-01"
 BIRTHDAY = "01-05"
 
 # Modes of operation
-# Advanced
+# AP, Extensions
 # 2 cards, 2 interfaces
 # i) AP, ii) EM
 OP_MODE1 = 0x1
-# Advanced and Internet
+# AP, Extensions and Internet
 # 3 cards, 3 interfaces
 # i) AP, ii) EM iii) Internet
 OP_MODE2 = 0x2
@@ -71,14 +73,23 @@ OP_MODE3 = 0x3
 # 1 card, 1 interface
 # i) AP
 OP_MODE4 = 0x4
-# Advanced w/ 1 vif
+# AP, Extensions w/ 1 vif
 # 1 card, 2 interfaces
 # i) AP, ii) Extensions
 OP_MODE5 = 0x5
-# Advanced and Internet w/ 1 vif
+# AP, Extensions and Internet w/ 1 vif
 # 2 cards, 3 interfaces
 # i) AP, ii) Extensions, iii) Internet
 OP_MODE6 = 0x6
+# Advanced and WPS association 0x7
+#  3 cards, 3 interfaces
+#  i) AP, ii) Extensions, iii) Extensions (Managed)
+OP_MODE7 = 0x7
+
+# Advanced and WPS association w/ 1 vif support AP/Monitor 0x8
+# 2 cards, 3 interfaces
+# i) AP, ii) Extensions, iii) Extensions (Managed)
+OP_MODE8 = 0x8
 
 AP_RATES = "\x0c\x12\x18\x24\x30\x48\x60\x6c"
 
@@ -141,3 +152,6 @@ AP_SEL_ATTRS = 'interface mac_matcher network_manager args'
 
 # Fourway handshake extension
 CONST_A = "Pairwise key expansion"
+
+# RogueAp related
+DENY_MACS_PATH = '/tmp/hostapd.deny'
