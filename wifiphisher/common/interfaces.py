@@ -40,26 +40,6 @@ class InvalidInterfaceError(Exception):
         Exception.__init__(self, message)
 
 
-class InvalidMacAddressError(Exception):
-    """
-    Exception class to raise in case of specifying invalid mac address
-    """
-
-    def __init__(self, mac_address):
-        """
-        Construct the class
-
-        :param self: A InvalidMacAddressError object
-        :param mac_address: A MAC address
-        :type self: InvalidMacAddressError
-        :type mac_address: str
-        :return: None
-        :rtype: None
-        """
-        message = "The provided MAC address {0} is invalid".format(mac_address)
-        Exception.__init__(self, message)
-
-
 class InvalidValueError(Exception):
     """
     Exception class to raise in case of a invalid value is supplied
@@ -479,8 +459,8 @@ class NetworkManager(object):
         :type self: NetworkManager
         :type interface_name: str
         :type mac_address: str
-        :return: None
-        :rtype: None
+        :return: True if mac address is set successfully
+        :rtype: bool
         .. note: This method will set the interface to managed mode
         """
         card = self._name_to_object[interface_name].card
@@ -490,12 +470,16 @@ class NetworkManager(object):
         # card must be turned off(down) before setting mac address
         try:
             pyw.macset(card, mac_address)
+            return True
         # make sure to catch an invalid mac address
         except pyric.error as error:
             if error[0] == 22:
-                raise InvalidMacAddressError(mac_address)
+                message = "The provided MAC address {0} is invalid".format(
+                    mac_address)
             else:
-                raise
+                message = "Fail to set mac address {0}".format(mac_address)
+            print('[' + constants.R + '!' + constants.W + ']' + message)
+            return False
 
     def get_interface_mac(self, interface_name):
         """

@@ -18,7 +18,8 @@ class TestNetworkAdapter(unittest.TestCase):
         self.adapter_name = "wlan0"
         self.card = "CARD"
         self.mac_address = "00:00:00:00:00:00"
-        self.adapter = interfaces.NetworkAdapter(self.adapter_name, self.card, self.mac_address)
+        self.adapter = interfaces.NetworkAdapter(self.adapter_name, self.card,
+                                                 self.mac_address)
 
     def test_name_value(self):
         """ Test the name of the interface """
@@ -121,7 +122,8 @@ class TestNetworkAdapter(unittest.TestCase):
         """
 
         message = "Failed to get the original MAC address"
-        self.assertEqual(self.adapter.original_mac_address, self.mac_address, message)
+        self.assertEqual(self.adapter.original_mac_address, self.mac_address,
+                         message)
 
     def test_mac_address_original(self):
         """
@@ -201,6 +203,7 @@ class TestIsManagedByNetworkManager(unittest.TestCase):
         Simulate the device.Get method to get the property of
         the device object
         """
+
         def device_side_effect(object_path, device_property):
             if device_obj == self.device_0:
                 if device_property == 'Interface':
@@ -263,7 +266,8 @@ class TestIsManagedByNetworkManager(unittest.TestCase):
         self.assertFalse(is_managed, message)
 
     @mock.patch("wifiphisher.common.interfaces.dbus")
-    def test_is_managed_by_network_manager_unexpected_error_error(self, my_dbus):
+    def test_is_managed_by_network_manager_unexpected_error_error(
+            self, my_dbus):
         """
         Test is_managed_by_network_manager function when an
         unexpected error happens and checks to see if the
@@ -387,7 +391,8 @@ class TestNetworkManager(unittest.TestCase):
         the card is not found in self._name_to_object
         """
         interface_name = 'eth0'
-        actual = self.network_manager.is_interface_valid(interface_name, mode="internet")
+        actual = self.network_manager.is_interface_valid(
+            interface_name, mode="internet")
         message = "Failed to validate a valid interface " + interface_name
 
         self.assertTrue(actual, message)
@@ -397,7 +402,8 @@ class TestNetworkManager(unittest.TestCase):
 
         interface_name = "wlan0"
         interface_object = "Card Object"
-        adapter = interfaces.NetworkAdapter(interface_name, interface_object, self.mac_address)
+        adapter = interfaces.NetworkAdapter(interface_name, interface_object,
+                                            self.mac_address)
 
         self.network_manager._name_to_object[interface_name] = adapter
 
@@ -413,7 +419,8 @@ class TestNetworkManager(unittest.TestCase):
 
         interface_name = "wlan0"
         interface_object = "Card Object"
-        adapter = interfaces.NetworkAdapter(interface_name, interface_object, self.mac_address)
+        adapter = interfaces.NetworkAdapter(interface_name, interface_object,
+                                            self.mac_address)
         self.network_manager._name_to_object[interface_name] = adapter
         # mimic the card has been chosen
         self.network_manager._active.add(interface_name)
@@ -439,7 +446,8 @@ class TestNetworkManager(unittest.TestCase):
 
         interface_name = "wlan0"
         interface_object = "Card Object"
-        adapter = interfaces.NetworkAdapter(interface_name, interface_object, self.mac_address)
+        adapter = interfaces.NetworkAdapter(interface_name, interface_object,
+                                            self.mac_address)
         adapter.has_ap_mode = False
         self.network_manager._name_to_object[interface_name] = adapter
 
@@ -454,7 +462,8 @@ class TestNetworkManager(unittest.TestCase):
 
         interface_name = "wlan0"
         interface_object = "Card Object"
-        adapter = interfaces.NetworkAdapter(interface_name, interface_object, self.mac_address)
+        adapter = interfaces.NetworkAdapter(interface_name, interface_object,
+                                            self.mac_address)
         adapter.has_ap_mode = True
         self.network_manager._name_to_object[interface_name] = adapter
 
@@ -470,11 +479,13 @@ class TestNetworkManager(unittest.TestCase):
 
         interface_name = "wlan0"
         interface_object = "Card Object"
-        adapter = interfaces.NetworkAdapter(interface_name, interface_object, self.mac_address)
+        adapter = interfaces.NetworkAdapter(interface_name, interface_object,
+                                            self.mac_address)
         adapter.has_monitor_mode = True
         self.network_manager._name_to_object[interface_name] = adapter
 
-        actual = self.network_manager.is_interface_valid(interface_name, "monitor")
+        actual = self.network_manager.is_interface_valid(
+            interface_name, "monitor")
         message = "Failed to validate an interface with monitor mode available and requested"
         self.assertTrue(actual, message)
 
@@ -486,7 +497,8 @@ class TestNetworkManager(unittest.TestCase):
 
         interface_name = "wlan0"
         interface_object = "Card Object"
-        adapter = interfaces.NetworkAdapter(interface_name, interface_object, self.mac_address)
+        adapter = interfaces.NetworkAdapter(interface_name, interface_object,
+                                            self.mac_address)
         adapter.has_monitor_mode = False
         self.network_manager._name_to_object[interface_name] = adapter
 
@@ -500,12 +512,14 @@ class TestNetworkManager(unittest.TestCase):
         """
 
         interface_name = "wlan0"
-        adapter = interfaces.NetworkAdapter(interface_name, "CARD", "00:00:00:00:00:00")
+        adapter = interfaces.NetworkAdapter(interface_name, "CARD",
+                                            "00:00:00:00:00:00")
         adapter.is_managed_by_nm = True
         adapter.has_monitor_mode = True
         self.network_manager._name_to_object[interface_name] = adapter
         self.network_manager.internet_access_enable = True
-        with self.assertRaises(interfaces.InterfaceManagedByNetworkManagerError):
+        with self.assertRaises(
+                interfaces.InterfaceManagedByNetworkManagerError):
             self.network_manager.is_interface_valid(interface_name, "monitor")
 
     def test_is_interface_valid_mode_monitor_is_managed_by_nm_true(self):
@@ -515,11 +529,13 @@ class TestNetworkManager(unittest.TestCase):
         """
 
         interface_name = "wlan0"
-        adapter = interfaces.NetworkAdapter(interface_name, "CARD", "00:00:00:00:00:00")
+        adapter = interfaces.NetworkAdapter(interface_name, "CARD",
+                                            "00:00:00:00:00:00")
         adapter.is_managed_by_nm = False
         adapter.has_monitor_mode = True
         self.network_manager._name_to_object[interface_name] = adapter
-        actual = self.network_manager.is_interface_valid(interface_name, "monitor")
+        actual = self.network_manager.is_interface_valid(
+            interface_name, "monitor")
 
         message = "Failed to validate an interface with monitor mode"
         self.assertTrue(actual, message)
@@ -531,14 +547,15 @@ class TestNetworkManager(unittest.TestCase):
         """
 
         interface_name = "wlan0"
-        adapter = interfaces.NetworkAdapter(interface_name, "CARD", "00:00:00:00:00:00")
+        adapter = interfaces.NetworkAdapter(interface_name, "CARD",
+                                            "00:00:00:00:00:00")
         adapter.is_managed_by_nm = True
         adapter.has_ap_mode = True
         self.network_manager._name_to_object[interface_name] = adapter
         self.network_manager.internet_access_enable = True
-        self.assertRaises(
-            interfaces.InterfaceManagedByNetworkManagerError,
-            self.network_manager.is_interface_valid, interface_name, "AP")
+        self.assertRaises(interfaces.InterfaceManagedByNetworkManagerError,
+                          self.network_manager.is_interface_valid,
+                          interface_name, "AP")
 
     def test_is_interface_valid_mode_ap_is_managed_by_nm_true(self):
         """
@@ -547,7 +564,8 @@ class TestNetworkManager(unittest.TestCase):
         """
 
         interface_name = "wlan0"
-        adapter = interfaces.NetworkAdapter(interface_name, "CARD", "00:00:00:00:00:00")
+        adapter = interfaces.NetworkAdapter(interface_name, "CARD",
+                                            "00:00:00:00:00:00")
         adapter.is_managed_by_nm = False
         adapter.has_ap_mode = True
         self.network_manager._name_to_object[interface_name] = adapter
@@ -563,11 +581,13 @@ class TestNetworkManager(unittest.TestCase):
 
         interface_name = "wlan0"
         self.network_manager = interfaces.NetworkManager()
-        adapter = interfaces.NetworkAdapter(interface_name, "CARD", "00:00:00:00:00:00")
+        adapter = interfaces.NetworkAdapter(interface_name, "CARD",
+                                            "00:00:00:00:00:00")
         adapter.is_managed_by_nm = True
         self.network_manager._name_to_object[interface_name] = adapter
 
-        actual = self.network_manager.is_interface_valid(interface_name, "internet")
+        actual = self.network_manager.is_interface_valid(
+            interface_name, "internet")
         message = "Failed to validate an interface with internet mode"
         self.assertTrue(actual, message)
 
@@ -578,7 +598,8 @@ class TestNetworkManager(unittest.TestCase):
         interface_name = "wlan0"
         interface_object = "Card Object"
         mode = "monitor"
-        adapter = interfaces.NetworkAdapter(interface_name, interface_object, self.mac_address)
+        adapter = interfaces.NetworkAdapter(interface_name, interface_object,
+                                            self.mac_address)
         self.network_manager._name_to_object[interface_name] = adapter
 
         self.network_manager.set_interface_mode(interface_name, mode)
@@ -601,7 +622,8 @@ class TestNetworkManager(unittest.TestCase):
 
         interface_name = "wlan0"
         interface_object = "Card Object"
-        adapter = interfaces.NetworkAdapter(interface_name, interface_object, self.mac_address)
+        adapter = interfaces.NetworkAdapter(interface_name, interface_object,
+                                            self.mac_address)
         self.network_manager._name_to_object[interface_name] = adapter
         self.network_manager._active.add(interface_name)
 
@@ -616,7 +638,8 @@ class TestNetworkManager(unittest.TestCase):
 
         interface_name = "wlan0"
         interface_object = "Card Object"
-        adapter = interfaces.NetworkAdapter(interface_name, interface_object, self.mac_address)
+        adapter = interfaces.NetworkAdapter(interface_name, interface_object,
+                                            self.mac_address)
         adapter.has_ap_mode = False
         adapter.has_monitor_mode = False
         self.network_manager._name_to_object[interface_name] = adapter
@@ -633,8 +656,10 @@ class TestNetworkManager(unittest.TestCase):
         interface_name_0 = "wlan0"
         interface_name_1 = "wlan1"
         interface_object = "Card Object"
-        adapter_0 = interfaces.NetworkAdapter(interface_name_0, interface_object, self.mac_address)
-        adapter_1 = interfaces.NetworkAdapter(interface_name_1, interface_object, self.mac_address)
+        adapter_0 = interfaces.NetworkAdapter(
+            interface_name_0, interface_object, self.mac_address)
+        adapter_1 = interfaces.NetworkAdapter(
+            interface_name_1, interface_object, self.mac_address)
         self.network_manager._name_to_object[interface_name_0] = adapter_0
         self.network_manager._name_to_object[interface_name_1] = adapter_1
         adapter_0.has_monitor_mode = True
@@ -654,8 +679,10 @@ class TestNetworkManager(unittest.TestCase):
         interface_name_0 = "wlan0"
         interface_name_1 = "wlan1"
         interface_object = "Card Object"
-        adapter_0 = interfaces.NetworkAdapter(interface_name_0, interface_object, self.mac_address)
-        adapter_1 = interfaces.NetworkAdapter(interface_name_1, interface_object, self.mac_address)
+        adapter_0 = interfaces.NetworkAdapter(
+            interface_name_0, interface_object, self.mac_address)
+        adapter_1 = interfaces.NetworkAdapter(
+            interface_name_1, interface_object, self.mac_address)
         self.network_manager._name_to_object[interface_name_0] = adapter_0
         self.network_manager._name_to_object[interface_name_1] = adapter_1
         adapter_0.has_monitor_mode = True
@@ -674,7 +701,8 @@ class TestNetworkManager(unittest.TestCase):
 
         interface_name = "wlan0"
         interface_object = "Card Object"
-        adapter = interfaces.NetworkAdapter(interface_name, interface_object, self.mac_address)
+        adapter = interfaces.NetworkAdapter(interface_name, interface_object,
+                                            self.mac_address)
         adapter.has_ap_mode = True
         adapter.has_monitor_mode = True
         self.network_manager._name_to_object[interface_name] = adapter
@@ -693,16 +721,16 @@ class TestNetworkManager(unittest.TestCase):
 
         interface_name = "wlan0"
         interface_object = "Card Object"
-        adapter = interfaces.NetworkAdapter(interface_name, interface_object, self.mac_address)
+        adapter = interfaces.NetworkAdapter(interface_name, interface_object,
+                                            self.mac_address)
         adapter.has_ap_mode = True
         adapter.has_monitor_mode = True
         adapter.is_managed_by_nm = True
         self.network_manager._name_to_object[interface_name] = adapter
         self.network_manager.internet_access_enable = True
 
-        self.assertRaises(
-            interfaces.InterfaceManagedByNetworkManagerError,
-            self.network_manager.get_interface, True, True)
+        self.assertRaises(interfaces.InterfaceManagedByNetworkManagerError,
+                          self.network_manager.get_interface, True, True)
 
     def test_get_interface_2_ap_monitor_is_managed_by_nm_error(self):
         """
@@ -714,8 +742,10 @@ class TestNetworkManager(unittest.TestCase):
         interface_name_0 = "wlan0"
         interface_name_1 = "wlan1"
         interface_object = "Card Object"
-        adapter_0 = interfaces.NetworkAdapter(interface_name_0, interface_object, self.mac_address)
-        adapter_1 = interfaces.NetworkAdapter(interface_name_1, interface_object, self.mac_address)
+        adapter_0 = interfaces.NetworkAdapter(
+            interface_name_0, interface_object, self.mac_address)
+        adapter_1 = interfaces.NetworkAdapter(
+            interface_name_1, interface_object, self.mac_address)
         self.network_manager._name_to_object[interface_name_0] = adapter_0
         self.network_manager._name_to_object[interface_name_1] = adapter_1
         self.network_manager.internet_access_enable = True
@@ -726,11 +756,11 @@ class TestNetworkManager(unittest.TestCase):
         adapter_0.is_managed_by_nm = True
         adapter_1.is_managed_by_nm = True
 
-        self.assertRaises(
-            interfaces.InterfaceManagedByNetworkManagerError,
-            self.network_manager.get_interface, True, True)
+        self.assertRaises(interfaces.InterfaceManagedByNetworkManagerError,
+                          self.network_manager.get_interface, True, True)
 
-    def test_get_interface_2_ap_monitor_is_managed_by_nm_1_ap_mon_interface(self):
+    def test_get_interface_2_ap_monitor_is_managed_by_nm_1_ap_mon_interface(
+            self):
         """
         Test get_interface method get the correct interface when 1
         card is managed and the other card is unmanaged by NetworkManager
@@ -739,8 +769,10 @@ class TestNetworkManager(unittest.TestCase):
         interface_name_0 = "wlan0"
         interface_name_1 = "wlan1"
         interface_object = "Card Object"
-        adapter_0 = interfaces.NetworkAdapter(interface_name_0, interface_object, self.mac_address)
-        adapter_1 = interfaces.NetworkAdapter(interface_name_1, interface_object, self.mac_address)
+        adapter_0 = interfaces.NetworkAdapter(
+            interface_name_0, interface_object, self.mac_address)
+        adapter_1 = interfaces.NetworkAdapter(
+            interface_name_1, interface_object, self.mac_address)
         self.network_manager._name_to_object[interface_name_0] = adapter_0
         self.network_manager._name_to_object[interface_name_1] = adapter_1
         self.network_manager.internet_access_enable = True
@@ -773,8 +805,10 @@ class TestNetworkManager(unittest.TestCase):
         interface_name_0 = "wlan0"
         interface_name_1 = "wlan1"
         interface_object = "Card Object"
-        adapter_0 = interfaces.NetworkAdapter(interface_name_0, interface_object, self.mac_address)
-        adapter_1 = interfaces.NetworkAdapter(interface_name_1, interface_object, self.mac_address)
+        adapter_0 = interfaces.NetworkAdapter(
+            interface_name_0, interface_object, self.mac_address)
+        adapter_1 = interfaces.NetworkAdapter(
+            interface_name_1, interface_object, self.mac_address)
         adapter_0.has_monitor_mode = True
         adapter_1.has_monitor_mode = True
         self.network_manager._name_to_object[interface_name_0] = adapter_0
@@ -792,8 +826,10 @@ class TestNetworkManager(unittest.TestCase):
         interface_name_0 = "wlan0"
         interface_name_1 = "wlan1"
         interface_object = "Card Object"
-        adapter_0 = interfaces.NetworkAdapter(interface_name_0, interface_object, self.mac_address)
-        adapter_1 = interfaces.NetworkAdapter(interface_name_1, interface_object, self.mac_address)
+        adapter_0 = interfaces.NetworkAdapter(
+            interface_name_0, interface_object, self.mac_address)
+        adapter_1 = interfaces.NetworkAdapter(
+            interface_name_1, interface_object, self.mac_address)
         adapter_0.has_ap_mode = True
         adapter_1.has_ap_mode = True
         self.network_manager._name_to_object[interface_name_0] = adapter_0
@@ -811,8 +847,10 @@ class TestNetworkManager(unittest.TestCase):
         interface_name_0 = "wlan0"
         interface_name_1 = "wlan1"
         interface_object = "Card Object"
-        adapter_0 = interfaces.NetworkAdapter(interface_name_0, interface_object, self.mac_address)
-        adapter_1 = interfaces.NetworkAdapter(interface_name_1, interface_object, self.mac_address)
+        adapter_0 = interfaces.NetworkAdapter(
+            interface_name_0, interface_object, self.mac_address)
+        adapter_1 = interfaces.NetworkAdapter(
+            interface_name_1, interface_object, self.mac_address)
         adapter_0.has_monitor_mode = True
         adapter_1.has_ap_mode = True
         self.network_manager._name_to_object[interface_name_0] = adapter_0
@@ -832,8 +870,10 @@ class TestNetworkManager(unittest.TestCase):
         interface_name_0 = "wlan0"
         interface_name_1 = "wlan1"
         interface_object = "Card Object"
-        adapter_0 = interfaces.NetworkAdapter(interface_name_0, interface_object, self.mac_address)
-        adapter_1 = interfaces.NetworkAdapter(interface_name_1, interface_object, self.mac_address)
+        adapter_0 = interfaces.NetworkAdapter(
+            interface_name_0, interface_object, self.mac_address)
+        adapter_1 = interfaces.NetworkAdapter(
+            interface_name_1, interface_object, self.mac_address)
         adapter_0.has_ap_mode = True
         adapter_0.has_monitor_mode = True
         adapter_1.has_ap_mode = True
@@ -854,8 +894,10 @@ class TestNetworkManager(unittest.TestCase):
         interface_name_0 = "wlan0"
         interface_name_1 = "wlan1"
         interface_object = "Card Object"
-        adapter_0 = interfaces.NetworkAdapter(interface_name_0, interface_object, self.mac_address)
-        adapter_1 = interfaces.NetworkAdapter(interface_name_1, interface_object, self.mac_address)
+        adapter_0 = interfaces.NetworkAdapter(
+            interface_name_0, interface_object, self.mac_address)
+        adapter_1 = interfaces.NetworkAdapter(
+            interface_name_1, interface_object, self.mac_address)
         adapter_0.has_monitor_mode = True
         adapter_1.has_ap_mode = True
         adapter_1.has_monitor_mode = True
@@ -875,7 +917,8 @@ class TestNetworkManager(unittest.TestCase):
 
         interface_name = "wlan0"
         interface_object = "Card Object"
-        adapter = interfaces.NetworkAdapter(interface_name, interface_object, self.mac_address)
+        adapter = interfaces.NetworkAdapter(interface_name, interface_object,
+                                            self.mac_address)
         self.network_manager._name_to_object[interface_name] = adapter
 
         pyric.isblocked.return_value = True
@@ -892,7 +935,8 @@ class TestNetworkManager(unittest.TestCase):
 
         interface_name = "wlan0"
         interface_object = "Card Object"
-        adapter = interfaces.NetworkAdapter(interface_name, interface_object, self.mac_address)
+        adapter = interfaces.NetworkAdapter(interface_name, interface_object,
+                                            self.mac_address)
         self.network_manager._name_to_object[interface_name] = adapter
 
         pyric.isblocked.return_value = False
@@ -910,7 +954,8 @@ class TestNetworkManager(unittest.TestCase):
         interface_name = "wlan0"
         interface_object = "Card Object"
         channel = 4
-        adapter = interfaces.NetworkAdapter(interface_name, interface_object, self.mac_address)
+        adapter = interfaces.NetworkAdapter(interface_name, interface_object,
+                                            self.mac_address)
         self.network_manager._name_to_object[interface_name] = adapter
 
         self.network_manager.set_interface_channel(interface_name, channel)
@@ -993,7 +1038,8 @@ class TestNetworkManager(unittest.TestCase):
         interface_name = "wlan0"
         interface_object = "Card Object"
         mode = "managed"
-        adapter = interfaces.NetworkAdapter(interface_name, interface_object, self.mac_address)
+        adapter = interfaces.NetworkAdapter(interface_name, interface_object,
+                                            self.mac_address)
         self.network_manager._name_to_object[interface_name] = adapter
         self.network_manager._active.add(interface_name)
 
@@ -1002,7 +1048,7 @@ class TestNetworkManager(unittest.TestCase):
         pyric.modeset.assert_called_once_with(interface_object, mode)
 
     @mock.patch("wifiphisher.common.interfaces.pyw")
-    def test_set_interface_mac_invalid_mac_error(self, pyw):
+    def test_set_interface_mac_invalid_mac_error_false(self, pyw):
         """
         Test set_interface_mac with an invalid MAC address to raise an
         error
@@ -1013,15 +1059,18 @@ class TestNetworkManager(unittest.TestCase):
         interface_name = "wlan0"
         interface_object = "Card Object"
         mac_address = "1"
-        adapter = interfaces.NetworkAdapter(interface_name, interface_object, self.mac_address)
+        adapter = interfaces.NetworkAdapter(interface_name, interface_object,
+                                            self.mac_address)
         self.network_manager._name_to_object[interface_name] = adapter
         self.network_manager._active.add(interface_name)
 
-        with self.assertRaises(interfaces.InvalidMacAddressError):
-            self.network_manager.set_interface_mac(interface_name, mac_address)
+        is_success = self.network_manager.set_interface_mac(
+            interface_name, mac_address)
+        # the mac address is fail to set due to invalid mac address
+        self.assertEqual(False, is_success)
 
     @mock.patch("wifiphisher.common.interfaces.pyw")
-    def test_set_interface_mac_valid_mac_none(self, pyw):
+    def test_set_interface_mac_valid_mac_true(self, pyw):
         """
         Test set_interface_mac with an valid MAC address to simulate
         normal operation
@@ -1030,16 +1079,17 @@ class TestNetworkManager(unittest.TestCase):
         interface_name = "wlan0"
         interface_object = "Card Object"
         mac_address = "11:22:33:44:55:66"
-        adapter = interfaces.NetworkAdapter(interface_name, interface_object, self.mac_address)
+        adapter = interfaces.NetworkAdapter(interface_name, interface_object,
+                                            self.mac_address)
         self.network_manager._name_to_object[interface_name] = adapter
         self.network_manager._active.add(interface_name)
 
-        operation = self.network_manager.set_interface_mac(interface_name, mac_address)
-        message = "Failed when a valid mac address was provided"
-        self.assertIsNone(operation, message)
+        is_success = self.network_manager.set_interface_mac(
+            interface_name, mac_address)
+        self.assertEqual(True, is_success)
 
     @mock.patch("wifiphisher.common.interfaces.pyw")
-    def test_set_interface_unexpected_error(self, pyw):
+    def test_set_interface_unexpected_error_false(self, pyw):
         """
         Test set_interface_mac when an unexpected error occurs
         """
@@ -1049,14 +1099,15 @@ class TestNetworkManager(unittest.TestCase):
         interface_name = "wlan0"
         interface_object = "Card Object"
         mac_address = "11:22:33:44:55:66"
-        adapter = interfaces.NetworkAdapter(interface_name, interface_object, self.mac_address)
+        adapter = interfaces.NetworkAdapter(interface_name, interface_object,
+                                            self.mac_address)
         self.network_manager._name_to_object[interface_name] = adapter
         self.network_manager._active.add(interface_name)
 
-        with self.assertRaises(pyric.error) as error:
-            self.network_manager.set_interface_mac(interface_name, mac_address)
+        is_success = self.network_manager.set_interface_mac(
+            interface_name, mac_address)
 
-        self.assertEqual(error.exception[0], 5534, "Unexpected error")
+        self.assertEqual(False, is_success)
 
     @mock.patch("wifiphisher.common.interfaces.pyw")
     def test_set_interface_mac_random_none(self, pyw):
@@ -1068,15 +1119,18 @@ class TestNetworkManager(unittest.TestCase):
 
         interface_name = "wlan0"
         interface_object = "Card Object"
-        adapter = interfaces.NetworkAdapter(interface_name, interface_object, self.mac_address)
+        adapter = interfaces.NetworkAdapter(interface_name, interface_object,
+                                            self.mac_address)
         self.network_manager._name_to_object[interface_name] = adapter
         self.network_manager._active.add(interface_name)
 
-        with mock.patch("wifiphisher.common.interfaces.generate_random_address") as generator:
+        with mock.patch("wifiphisher.common.interfaces.generate_random_address"
+                        ) as generator:
             generator.return_value = new_mac_address
             self.network_manager.set_interface_mac_random(interface_name)
 
-            pyw.macset.assert_called_once_with(interface_object, new_mac_address)
+            pyw.macset.assert_called_once_with(interface_object,
+                                               new_mac_address)
 
     def test_get_interface_mac_address(self):
         """
@@ -1085,11 +1139,14 @@ class TestNetworkManager(unittest.TestCase):
 
         interface_name = "wlan0"
         interface_object = "Card Object"
-        adapter = interfaces.NetworkAdapter(interface_name, interface_object, self.mac_address)
+        adapter = interfaces.NetworkAdapter(interface_name, interface_object,
+                                            self.mac_address)
         self.network_manager._name_to_object[interface_name] = adapter
         self.network_manager._active.add(interface_name)
 
-        self.assertEqual(self.network_manager.get_interface_mac(interface_name), self.mac_address)
+        self.assertEqual(
+            self.network_manager.get_interface_mac(interface_name),
+            self.mac_address)
 
     @mock.patch("wifiphisher.common.interfaces.pyw")
     def test_up_interface(self, pyric):
@@ -1098,7 +1155,8 @@ class TestNetworkManager(unittest.TestCase):
         """
         interface_name = "wlan0"
         interface_object = "Card Object"
-        adapter = interfaces.NetworkAdapter(interface_name, interface_object, self.mac_address)
+        adapter = interfaces.NetworkAdapter(interface_name, interface_object,
+                                            self.mac_address)
         self.network_manager._name_to_object[interface_name] = adapter
         self.network_manager.up_interface(interface_name)
         pyric.up.assert_called_once_with(adapter.card)
@@ -1110,7 +1168,8 @@ class TestNetworkManager(unittest.TestCase):
         """
         interface_name = "wlan0"
         interface_object = "Card Object"
-        adapter = interfaces.NetworkAdapter(interface_name, interface_object, self.mac_address)
+        adapter = interfaces.NetworkAdapter(interface_name, interface_object,
+                                            self.mac_address)
         self.network_manager._name_to_object[interface_name] = adapter
         self.network_manager.down_interface(interface_name)
         pyric.down.assert_called_once_with(adapter.card)
@@ -1138,7 +1197,8 @@ class TestNetworkManager(unittest.TestCase):
         pyric.devdel.assert_called_once()
 
     @mock.patch("wifiphisher.common.interfaces.pyw")
-    def test_add_virtual_interface_first_run_error_second_run_success(self, mock_pyric):
+    def test_add_virtual_interface_first_run_error_second_run_success(
+            self, mock_pyric):
         """
         Test add_virtual_interface when the interface name already exist
         This case should return pyric.error for the first time
@@ -1152,6 +1212,7 @@ class TestNetworkManager(unittest.TestCase):
                 raise next(exceptions)
             except StopIteration:
                 return
+
         mock_pyric.down.return_value = None
         mock_pyric.devadd.side_effect = side_effect
         expected = 'wlan2'
@@ -1173,7 +1234,8 @@ class TestNetworkManager(unittest.TestCase):
         pyric.iswireless.return_value = True
         pyric.getcard.return_value = card
         pyric.devmodes.return_value = ["monitor", "AP"]
-        actual_card, is_single_perfect_card = interfaces.is_add_vif_required(args)
+        actual_card, is_single_perfect_card = interfaces.is_add_vif_required(
+            args)
         self.assertEqual(actual_card, card)
         self.assertEqual(is_single_perfect_card, True)
 
@@ -1193,7 +1255,8 @@ class TestNetworkManager(unittest.TestCase):
         pyric.iswireless.return_value = True
         pyric.getcard.return_value = card
         pyric.devmodes.return_value = ["monitor", "AP"]
-        actual_card, is_single_perfect_card = interfaces.is_add_vif_required(args)
+        actual_card, is_single_perfect_card = interfaces.is_add_vif_required(
+            args)
         self.assertEqual(actual_card, None)
         self.assertEqual(is_single_perfect_card, True)
 
@@ -1230,12 +1293,14 @@ class TestNetworkManager(unittest.TestCase):
 
         pyric.getcard.side_effect = get_card_side_effect
         pyric.devmodes.side_effect = devmodes_side_effect
-        actual_card, is_single_perfect_card = interfaces.is_add_vif_required(args)
+        actual_card, is_single_perfect_card = interfaces.is_add_vif_required(
+            args)
         self.assertEqual(actual_card, card1)
         self.assertEqual(is_single_perfect_card, True)
 
     @mock.patch("wifiphisher.common.interfaces.pyw")
-    def test_is_add_vif_required_two_phy_two_vifs_tuple_none_false(self, pyric):
+    def test_is_add_vif_required_two_phy_two_vifs_tuple_none_false(
+            self, pyric):
         """
         Test the system has two cards and one card support AP and the other
         support monitor mode
@@ -1265,7 +1330,8 @@ class TestNetworkManager(unittest.TestCase):
 
         pyric.getcard.side_effect = get_card_side_effect
         pyric.devmodes.side_effect = devmodes_side_effect
-        actual_card, is_single_perfect_card = interfaces.is_add_vif_required(args)
+        actual_card, is_single_perfect_card = interfaces.is_add_vif_required(
+            args)
         self.assertEqual(actual_card, None)
         self.assertEqual(is_single_perfect_card, False)
 
@@ -1300,7 +1366,8 @@ class TestNetworkManager(unittest.TestCase):
 
         pyric.getcard.side_effect = get_card_side_effect
         pyric.devmodes.side_effect = devmodes_side_effect
-        actual_card, is_single_perfect_card = interfaces.is_add_vif_required(args)
+        actual_card, is_single_perfect_card = interfaces.is_add_vif_required(
+            args)
         self.assertEqual(actual_card, None)
         self.assertEqual(is_single_perfect_card, False)
 
